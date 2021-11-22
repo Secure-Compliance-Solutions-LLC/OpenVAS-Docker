@@ -5,18 +5,6 @@ on:
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron: "30 22 * * *"
-  pull_request:
-    branches: [master]
-
-concurrency: ci-${{ github.ref }}
-
-env:
-  # Use docker.io for Docker Hub if empty
-  REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
-  IMAGE_NAME_GHCR: ghcr.io/${{ github.repository }}
-  IMAGE_NAME_DOCKER: securecompliance/gvm
 
 
 jobs:
@@ -26,18 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: PrepareReg Names
-        run: |
-          echo IMAGE_REPOSITORY_GHCR=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
-          echo IMAGE_TAG=$(echo ${{ github.ref }} | tr '[:upper:]' '[:lower:]' | awk '{split($0,a,"/"); print a[3]}') >> $GITHUB_ENV
-
-      - name: Set tag var
-        id: vars
-        run: echo ::set-output name=docker_tag::$(echo ${GITHUB_REF} | cut -d'/' -f3)-${GITHUB_SHA}
-
 
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --build-arg OPT_PDF=1 --tag ${{ env.IMAGE_REPOSITORY_GHCR }}:${{ github.sha }}
+        run: docker build . --file Dockerfile --build-arg OPT_PDF=1
 
 
  
